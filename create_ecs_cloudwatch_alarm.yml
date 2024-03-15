@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates a CloudWatch alarm for ECS cluster and service-level metrics such as CPU, memory, disk, and network.
+
+# Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
+#------------------------------------------------------------------------------------*
+# Any Amazon ECS service hosted on Fargate has CloudWatch CPU and memory 
+# utilization metrics automatically, so you don't need to take any manual steps.
+
+# Amazon ECS provides free metrics for clusters and services. 
+# For an additional cost, you can turn on Amazon ECS CloudWatch Container 
+# Insights for your cluster for per-task metrics, including CPU, memory, and 
+# EBS filesystem utilization.
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cloudwatch-metrics.html
+
+# To use this template, you will need to create an SNS topic and replace 
+# the SNSTopic resource with the ARN of your topic. You can then create a 
+# stack from this template using the AWS CloudFormation console or CLI.
+# Once the stack is created, you will have three CloudWatch alarms:
+#______
+# This alarm will trigger the threshold has been exceeded for 1 minute.
+#______
+# You can configure these alarms to send notifications to you via email or SNS. 
+# You can also configure them to take actions, such as scaling your cluster 
+# or terminating tasks.
+#------------------------------------------------------------------------------------*
+
+# Setup parameters
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudwatch-alarm.html
+
+Parameters:
+  ClusterName:
+    Type: String
+    Description: The name of the ECS cluster.
+  ServiceName:
+    Type: String
+    Description: The name of the ECS service.
+  TaskDefinitionArn:
+    Type: String
+    Description: The ARN of the ECS task definition.
+  MetricName:
+    Type: String
+    Description: The name of the metric to monitor.
+    AllowedValues:
+      - CPUUtilization
+      - MemoryUtilization
+      - DiskUtilization
+      - NetworkIn
+      - NetworkOut
+  Statistic:
+    Type: String
+    Description: The statistic to use for the alarm.
+    AllowedValues:
+      - Average
+      - Minimum
+      - Maximum
+  Period:
+    Type: String
+    Description: The period over which the statistic is measured.
+    AllowedValues:
+      - 60  # 1min
+      - 300 # 5min
+      - 900 # 15min
+  Threshold:
+    Type: Number
+    Description: RAM and CPU utilizationThe threshold for the alarm (in percentage).
+    Default: 80
+    MinValue: 1
+    MaxValue: 100
+    ConstraintDescription: Threshold value must be between 1 and 100
+  ComparisonOperator:
+    Type: String
+    Description: The comparison operator for the alarm.
+    AllowedValues:
+      - GreaterThanThreshold
+      - GreaterThanOrEqualToThreshold
+      - LessThanThreshold
+      - LessThanOrEqualToThreshold
+  AlarmActions:
+    Type: List<String>
+    Description: The actions to take when the alarm is triggered.
+
+# Create AWS resources
+Resources:
+  Alarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${ClusterName}-${ServiceName}-${MetricName}-Alarm"
+      AlarmDescription: !Sub "This alarm monitors the ${MetricName} metric for the ${ServiceName} service in the ${ClusterName} cluster."
+      MetricName: !Ref MetricName
+      Namespace: AWS/ECS
+      Statistic: !Ref Statistic
+      Period: !Ref Period
+      Threshold: !Ref Threshold
+      ComparisonOperator: !Ref ComparisonOperator
+      EvaluationPeriods: 1                         # when threshold has been exceeded for 1 minute
+      AlarmActions: !Ref AlarmActions              # This is where one or many SNS topic ARN will be added
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref ClusterName
+        - Name: ServiceName
+          Value: !Ref ServiceName 
+
+Outputs:
+  ClusterAlarmArn:
+    Value: !Ref Alarm
+    Description: ARN of the ${ClusterName}-${ServiceName}-${MetricName} alarm

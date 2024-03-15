@@ -37,14 +37,14 @@ Resources:
   SNSTopic:
   Condition: PublishToQueueInSameEnv
   Type: 'AWS::SNS::Topic'
-  Properties:
-  TopicName: !Sub '${EnvironmentName}-topic-name'
-  KmsMasterKeyId: alias/aws/sns
-  Subscription:
-  - Endpoint: !ImportValue 
-  'Fn::Sub': '${QueueStackName}-Subscription'
-  Protocol: sqs
-  MonitoringAlarmsSNSTopic:
+    Properties:
+    TopicName: !Sub '${EnvironmentName}-topic-name'
+    KmsMasterKeyId: alias/aws/sns
+    Subscription:
+    - Endpoint: !ImportValue 
+    'Fn::Sub': '${QueueStackName}-Subscription'
+    Protocol: sqs
+    MonitoringAlarmsSNSTopic:
   Type: 'AWS::SNS::Topic'
   Properties:
   KmsMasterKeyId: alias/aws/sns
