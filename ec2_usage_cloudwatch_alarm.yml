@@ -18,6 +18,7 @@ Parameters:
     MinValue: 1
     MaxValue: 100
     ConstraintDescription: Threshold value must be between 1 and 100
+
 Resources:
   CPUMetricAlarm:
     Type: AWS::CloudWatch::Alarm
