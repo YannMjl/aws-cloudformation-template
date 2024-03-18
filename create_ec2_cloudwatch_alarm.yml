@@ -1,20 +1,31 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Create CloudWatch Alarms for EC2 CPU and RAM Utilization
+
+# Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
+#------------------------------------------------------------------------------------*
+# This CloudFormation template creates cloudwatch an alarm that sends a notification 
+# when the average CPU and/or RAM utilization of an Amazon EC2 instance exceeds 90% 
+# for more than 60 seconds over three evaluation periods.
+
+# An SNS topic needs to be created and attached this alarm. Review the following 
+# cloudformation template file to create SNS topics: create_sns_topic.yml
+#______
+
 Parameters:
   EC2InstanceId:
     Description: ID of the EC2 instance to monitor
     Type: String
   CPUMetricThreshold:
-    Description: CPU utilization threshold for the alarm
+    Description: CPU utilization threshold for the alarm (percentage)
     Type: Number
-    Default: 70
+    Default: 90
     MinValue: 1
     MaxValue: 100
     ConstraintDescription: Threshold value must be between 1 and 100
   RAMMetricThreshold:
     Description: RAM utilization threshold for the alarm (percentage)
     Type: Number
-    Default: 70
+    Default: 90
     MinValue: 1
     MaxValue: 100
     ConstraintDescription: Threshold value must be between 1 and 100

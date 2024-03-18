@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This Couldformation template creates SNS Topics given paramaters
+
+# Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
+#------------------------------------------------------------------------------------*
+# SNS is a Simple Notification Service. It's used by Cloudwatch to send alert emails. 
+# An SNS topic needs to be created and then an endpoint needs to be subscribed to it.
+
+# The SNS topic created are what will be refered to on a CloudWatch alarms:
+# refer to: create_ecs_cloudwatch_alarm.yml cloudformation template
+#______
+
+# define paremeter to create a SNS topic
+Parameters:
+  SubscriptionEndPoint:
+    Type: String
+    Description: The endpoint that receives notifications.
+  SubscriptionProtocol:
+    Type: String
+    Description: The subscription protocol
+    AllowedValues:
+    - http
+    - https
+    - email
+    - email-json
+    - sms
+    - sqs
+    - application
+    - lambda
+    Default: email
+Mappings: {}
+Conditions: {}
+
+# Create AWS resources
+Resources:
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties: {}
+
+  SNSSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !Ref SubscriptionEndPoint
+      Protocol: !Ref SubscriptionProtocol
+      TopicArn: !Ref SNSTopic
+
+Outputs:
+  QueueName:
+    Description: Name of the SNS Topic we created
+    Value:
+      Fn::GetAtt:
+      - SNSTopic
+      - TopicName
+  TopicARN:
+    Description: ARN of the SNS Topic we created 
+    Value: !Ref SNSTopic
