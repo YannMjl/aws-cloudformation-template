@@ -11,8 +11,6 @@ Description: >
 # The SNS topic created are what will be refered to on a CloudWatch alarms:
 # refer to: create_ecs_cloudwatch_alarm.yml cloudformation template
 #______
-# more details about SNS Topic properties can be found here:
-# https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-sns/blob/master/aws-sns-topic/docs/README.md
 
 # define paremeter
 Parameters:
@@ -44,8 +42,8 @@ Conditions: {}
 
 # Create AWS resources
 Resources:
-  # None of the SNSTopic properties are requied to be added on the resources definition
-  # review snsReadMe for more details
+  # SNSTopic properties are NOT requied
+  # Review snsReadMe for more details
   SNSTopic:
     Type: AWS::SNS::Topic
     # Properties: {}
