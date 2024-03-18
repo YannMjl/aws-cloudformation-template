@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Creates a CloudWatch alarm for ECS cluster and service-level metrics such as CPU, memory, disk, and network.
+Description: >
+  Creates a CloudWatch alarm for ECS cluster and service-level metrics 
+  such as CPU, memory, disk, and network.
 
 # Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
 #------------------------------------------------------------------------------------*
@@ -75,6 +77,7 @@ Parameters:
       - GreaterThanOrEqualToThreshold
       - LessThanThreshold
       - LessThanOrEqualToThreshold
+  # This is also where one or many SNS topic can be listed
   AlarmActions:
     Type: List<String>
     Description: The actions to take when the alarm is triggered.

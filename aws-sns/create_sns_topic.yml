@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: This Couldformation template creates SNS Topics given paramaters
+Description: >
+  This Couldformation template creates SNS Topic given paramaters.
+  An appropirate protocal should be chosen for the subscription to the SNS topic.
 
 # Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
 #------------------------------------------------------------------------------------*
@@ -9,9 +11,18 @@ Description: This Couldformation template creates SNS Topics given paramaters
 # The SNS topic created are what will be refered to on a CloudWatch alarms:
 # refer to: create_ecs_cloudwatch_alarm.yml cloudformation template
 #______
+# more details about SNS Topic properties can be found here:
+# https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-sns/blob/master/aws-sns-topic/docs/README.md
 
-# define paremeter to create a SNS topic
+# define paremeter
 Parameters:
+  Parameters:
+  SNSTopicName:
+    Type: String
+    Description: Name for the SNS topic
+  SNSTopicDisplayName:
+    Type: String
+    Description: Display name for the SNS topic
   SubscriptionEndPoint:
     Type: String
     Description: The endpoint that receives notifications.
@@ -33,9 +44,14 @@ Conditions: {}
 
 # Create AWS resources
 Resources:
+  # None of the SNSTopic properties are requied to be added on the resources definition
+  # review snsReadMe for more details
   SNSTopic:
     Type: AWS::SNS::Topic
-    Properties: {}
+    # Properties: {}
+    Properties:
+      DisplayName: !Ref SNSTopicDisplayName
+      TopicName: !Ref SNSTopicName
 
   SNSSubscription:
     Type: AWS::SNS::Subscription
@@ -44,6 +60,7 @@ Resources:
       Protocol: !Ref SubscriptionProtocol
       TopicArn: !Ref SNSTopic
 
+# ouptut is optional
 Outputs:
   QueueName:
     Description: Name of the SNS Topic we created

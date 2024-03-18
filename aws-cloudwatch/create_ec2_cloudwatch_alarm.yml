@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 Description: Create CloudWatch Alarms for EC2 CPU and RAM Utilization
 
 # Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
