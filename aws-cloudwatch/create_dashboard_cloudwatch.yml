@@ -3,8 +3,11 @@ Description: Create CloudWatch dashboard
 
 # Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
 #------------------------------------------------------------------------------------*
-# This CloudFormation template example creates a dashboard with two metric widgets 
+# This CloudFormation template example creates a dashboard with metric widgets 
 # that appear side by side.
+
+# More details on Dashboard Body Structure and Syntax here:
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/CloudWatch-Dashboard-Body-Structure.html
 #______
 
 # define dashboard paremeters
