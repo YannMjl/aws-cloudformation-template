@@ -77,7 +77,11 @@ Parameters:
       - GreaterThanOrEqualToThreshold
       - LessThanThreshold
       - LessThanOrEqualToThreshold
-  # This is also where one or many SNS topic can be listed
+  #______
+  # AlarmActions are list of actions to execute when this alarm transitions 
+  # into an ALARM state from any other state. Up to 5 alarm actions can be 
+  # configured on an AWS::CloudWatch::Alarm
+  # check out alarmActionsReadMe.md for more info
   AlarmActions:
     Type: List<String>
     Description: The actions to take when the alarm is triggered.
