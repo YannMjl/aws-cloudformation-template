@@ -18,20 +18,23 @@ DashboardSideBySide:
   Properties:
     DashboardName: !Ref DashboardName
     #______
-    # The first widget includes two metrics and a math expression that sums their total
+    # Widget 1: includes two metrics and a math expression that sums their total
 
-    # The second widget is a search expression that displays the CPUUtilization for all 
+    # Widget 2: is a search expression that displays the CPUUtilization for all 
     # EC2 instances in the Region.
 
-    # The third widget displays three metrics for each of the account's running EC2 instances, 
+    # Widget 3: displays three metrics for each of the account's running EC2 instances, 
     # with the graphs in the widget split by availability zone. Within each graph, 
     # the metrics are aggregated by instance type.
+
+    # Widget 4: displays four alarms specified by name, no matter their current state.
     DashboardBody: >
       '
       {
         "start": "-PT9H",
         "periodOverride": "inherit",
         "widgets": [
+          // *** widget 1 **
           {
             "type":"metric",
             "x":0,
@@ -52,6 +55,7 @@ DashboardSideBySide:
                 "title":"EC2 Instance CPU"
             }
           },
+          // *** widget 2 **
           {
             "type":"metric",
             "x":0,
@@ -68,6 +72,7 @@ DashboardSideBySide:
                 "title":"EC2 Instance CPU"
             }
           },
+          // *** widget 3 **
           {
             "type": "explorer",
             "width": 24,
@@ -113,6 +118,24 @@ DashboardSideBySide:
               "period": 300,
               "splitBy": "AvailabilityZone",
               "title": "Running EC2 Instances by AZ"
+            }
+          },
+          // *** widget 4 **
+          {
+            "type": "alarm",
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 6,
+            "properties": {
+              "alarms": [
+                "arn:aws:cloudwatch:us-east-1:012345678901:alarm:EC2FrontendCPU",
+                "arn:aws:cloudwatch:us-east-1:012345678901:alarm:EC2BackendCPU",
+                "arn:aws:cloudwatch:eu-west-1:987654321098:alarm:EC2FrontendCPU",
+                "arn:aws:cloudwatch:eu-west-1:987654321098:alarm:EC2BackendCPU"
+              ],
+              "sortBy": "stateUpdatedTimestamp",
+              "title": "All EC2 CPU alarms"
             }
           }
         ]
