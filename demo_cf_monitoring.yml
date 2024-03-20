@@ -2,69 +2,74 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: AWS CloudFormation Template for the SNS Queues and subscriptions.
 Parameters:
   EnvironmentName:
-  Description: Environment name for the application dev/staging
-  Type: String
-  AllowedValues:
-    - dev
-    - stage
-  ConstraintDescription: Specify either dev or staging or uat or production
+    Description: Environment name for the application dev/staging
+    Type: String
+    AllowedValues:
+      - dev
+      - stage
+    ConstraintDescription: Specify either dev or staging or uat or production
   QueueStackName:
-  Description: Name of an active CloudFormation stack of SQS resources
-  Type: String
-  MinLength: 1
-  MaxLength: 255
-  AllowedPattern: '^[a-zA-Z][-a-zA-Z0-9]*$'
-  AlarmMonitorEmail: yannmjl@gmail.com
-  Description: Email address where alarms will be send
-  Type: String
+    Description: Name of an active CloudFormation stack of SQS resources
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: '^[a-zA-Z][-a-zA-Z0-9]*$'
+  AlarmMonitorEmail:
+    Description: Email address where alarms will be send
+    Type: String
 Mappings: {}
 Conditions:
   PublishToDevAndStagingQueues: !Or
-  - !Equals 
-  - !Ref EnvironmentName
-  - dev
-  - !Equals 
-  - !Ref EnvironmentName
-  - staging
+    - !Equals 
+      - !Ref EnvironmentName
+      - dev
+    - !Equals 
+      - !Ref EnvironmentName
+      - staging
   PublishToQueueInSameEnv: !Or 
-  - !Equals 
-  - !Ref EnvironmentName
-  - uat
-  - !Equals 
-  - !Ref EnvironmentName
-  - production
+    - !Equals 
+      - !Ref EnvironmentName
+      - uat
+    - !Equals 
+      - !Ref EnvironmentName
+      - production
+
+
 Resources:
   SNSTopic:
   Condition: PublishToQueueInSameEnv
   Type: 'AWS::SNS::Topic'
-    Properties:
+  Properties:
     TopicName: !Sub '${EnvironmentName}-topic-name'
     KmsMasterKeyId: alias/aws/sns
     Subscription:
     - Endpoint: !ImportValue 
     'Fn::Sub': '${QueueStackName}-Subscription'
     Protocol: sqs
-    MonitoringAlarmsSNSTopic:
-  Type: 'AWS::SNS::Topic'
-  Properties:
-  KmsMasterKeyId: alias/aws/sns
-  Subscription:
-  - Endpoint: !Ref AlarmMonitorEmail
-  Protocol: email
+  
+  MonitoringAlarmsSNSTopic:
+    Type: 'AWS::SNS::Topic'
+    Properties:
+      KmsMasterKeyId: alias/aws/sns
+      Subscription:
+      - Endpoint: !Ref AlarmMonitorEmail
+      Protocol: email
+
 Outputs:
   Name:
-  Description: SNS Stack name
-  Value: !Ref 'AWS::StackName'
-  Export:
-  Name: !Sub '${AWS::StackName}-Name'
+    Description: SNS Stack name
+    Value: !Ref 'AWS::StackName'
+    Export:
+      Name: !Sub '${AWS::StackName}-Name'
   SNSTopicArn:
-  Condition: PublishToQueueInSameEnv
-  Description: SNS Topic
-  Value: !Ref SNSTopic
-  Export:
-  Name: !Sub '${AWS::StackName}-SNSTopicArn'
+    Condition: PublishToQueueInSameEnv
+    Description: SNS Topic
+    Value: !Ref SNSTopic
+    Export:
+      Name: !Sub '${AWS::StackName}-SNSTopicArn'
+  
   MonitoringAlarmsSNSTopicArn:
-  Description: Alarms goes to SNS Topic
-  Value: !Ref MonitoringAlarmsSNSTopic
-  Export:
-  Name: !Sub '${AWS::StackName}-MonitoringAlarmsSNSTopicArn'
+    Description: Alarms goes to SNS Topic
+    Value: !Ref MonitoringAlarmsSNSTopic
+    Export:
+      Name: !Sub '${AWS::StackName}-MonitoringAlarmsSNSTopicArn'
