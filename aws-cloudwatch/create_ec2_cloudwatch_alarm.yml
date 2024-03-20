@@ -46,15 +46,15 @@ Resources:
       Threshold: !Ref CPUMetricThreshold
       ComparisonOperator: "GreaterThanThreshold"
       AlarmActions:
-        - !Ref SNSNotificationTopic # Replace with your SNS topic ARN
+        - !Ref SNSNotificationTopic                     # Replace with your SNS topic ARN
       TreatMissingData: notBreaching
 
   RAMMetricAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmDescription: "Alarm for EC2 RAM Utilization"
-      Namespace: "System/Linux" # Adjust the namespace based on your instance's OS
-      MetricName: "MemoryUtilization" # Metric name may vary depending on OS
+      Namespace: "System/Linux"                         # Adjust the namespace based on your instance's OS
+      MetricName: "MemoryUtilization"                   # Metric name may vary depending on OS
       Dimensions:
         - Name: "InstanceId"
           Value: !Ref EC2InstanceId
@@ -64,7 +64,7 @@ Resources:
       Threshold: !Ref RAMMetricThreshold
       ComparisonOperator: "GreaterThanThreshold"
       AlarmActions:
-        - !Ref SNSNotificationTopic # Replace with your SNS topic ARN
+        - !Ref SNSNotificationTopic                    # Replace with your SNS topic ARN
       TreatMissingData: notBreaching
 
 Outputs:

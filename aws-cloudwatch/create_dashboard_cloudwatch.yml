@@ -67,7 +67,12 @@ DashboardSideBySide:
             "height":9,
             "properties":{
                 "metrics":[
-                  [ { "expression": "SEARCH('{AWS/EC2,InstanceId} MetricName=\"CPUUtilization\"', 'Average', 300)", "id": "e1" } ]
+                  [ 
+                    { 
+                      "expression": "SEARCH('{AWS/EC2,InstanceId} MetricName=\"CPUUtilization\"', 'Average', 300)", 
+                      "id": "e1" 
+                    } 
+                  ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
