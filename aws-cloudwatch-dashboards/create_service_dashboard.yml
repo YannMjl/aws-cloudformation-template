@@ -1,0 +1,338 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create CloudWatch dashboard
+
+# Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
+#------------------------------------------------------------------------------------*
+# This CloudFormation template example creates a dashboard with metric widgets 
+# that appear side by side.
+
+# More details on Dashboard Body Structure and Syntax here:
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/CloudWatch-Dashboard-Body-Structure.html
+#______
+
+# define dashboard paremeters
+Parameters:
+  DashboardName:
+    Description: dashboard name
+    Type: String
+
+DashboardSideBySide:
+  Type: AWS::CloudWatch::Dashboard
+  Properties:
+    DashboardName: !Ref DashboardName
+    #______
+    # Widget 1: includes two metrics and a math expression that sums their total
+
+    # Widget 2: is a search expression that displays the CPUUtilization for all 
+    # EC2 instances in the Region.
+
+    # Widget 3: displays three metrics for each of the account's running EC2 instances, 
+    # with the graphs in the widget split by availability zone. Within each graph, 
+    # the metrics are aggregated by instance type.
+
+    # Widget 4: displays four alarms specified by name, no matter their current state.
+    DashboardBody: >
+      '
+      {
+        "widgets": [
+              {
+                  "height": 7,
+                  "width": 6,
+                  "y": 0,
+                  "x": 0,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "CPU utilization",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ { "id": "expr1m0", "label": "hudcn-nonprod-ecs-service", "expression": "mm1m0 * 100 / mm0m0", "stat": "Average", "accountId": "211125526048" } ],
+                          [ "ECS/ContainerInsights", "CpuReserved", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "id": "mm0m0", "visible": false, "stat": "Sum", "accountId": "211125526048" } ],
+                          [ ".", "CpuUtilized", ".", ".", ".", ".", { "id": "mm1m0", "visible": false, "stat": "Sum", "accountId": "211125526048" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60,
+                      "yAxis": {
+                          "left": {
+                              "min": 0,
+                              "showUnits": false,
+                              "label": "Percent"
+                          }
+                      }
+                  }
+              },
+              {
+                  "height": 7,
+                  "width": 6,
+                  "y": 0,
+                  "x": 6,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Memory utilization",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ { "id": "expr1m0", "label": "hudcn-nonprod-ecs-service", "expression": "mm1m0 * 100 / mm0m0", "stat": "Average", "accountId": "211125526048" } ],
+                          [ "ECS/ContainerInsights", "MemoryReserved", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "id": "mm0m0", "visible": false, "stat": "Sum", "accountId": "211125526048" } ],
+                          [ ".", "MemoryUtilized", ".", ".", ".", ".", { "id": "mm1m0", "visible": false, "stat": "Sum", "accountId": "211125526048" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60,
+                      "yAxis": {
+                          "left": {
+                              "min": 0,
+                              "showUnits": false,
+                              "label": "Percent"
+                          }
+                      }
+                  }
+              },
+              {
+                  "height": 6,
+                  "width": 4,
+                  "y": 7,
+                  "x": 8,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Ephemeral Storage Utilization",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ { "id": "expr1m0", "label": "hudcn-nonprod-ecs-service", "expression": "mm1m0 * 100 / mm0m0", "stat": "Average", "accountId": "211125526048", "region": "us-east-1" } ],
+                          [ "ECS/ContainerInsights", "EphemeralStorageReserved", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "id": "mm0m0", "visible": false, "stat": "Sum", "accountId": "211125526048", "region": "us-east-1" } ],
+                          [ "ECS/ContainerInsights", "EphemeralStorageUtilized", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "id": "mm1m0", "visible": false, "stat": "Sum", "accountId": "211125526048", "region": "us-east-1" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60,
+                      "yAxis": {
+                          "left": {
+                              "min": 0,
+                              "showUnits": false,
+                              "label": "Percent"
+                          }
+                      }
+                  }
+              },
+              {
+                  "height": 13,
+                  "width": 6,
+                  "y": 0,
+                  "x": 12,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Network RX",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ { "id": "expr1m0", "label": "hudcn-nonprod-ecs-service", "expression": "mm0m0", "stat": "Average", "accountId": "211125526048" } ],
+                          [ "ECS/ContainerInsights", "NetworkRxBytes", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "id": "mm0m0", "visible": false, "stat": "Average", "accountId": "211125526048" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60,
+                      "yAxis": {
+                          "left": {
+                              "showUnits": false,
+                              "label": "Bytes/Second"
+                          }
+                      }
+                  }
+              },
+              {
+                  "height": 13,
+                  "width": 6,
+                  "y": 0,
+                  "x": 18,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Network TX",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ { "id": "expr1m0", "label": "hudcn-nonprod-ecs-service", "expression": "mm0m0", "stat": "Average", "accountId": "211125526048" } ],
+                          [ "ECS/ContainerInsights", "NetworkTxBytes", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "id": "mm0m0", "visible": false, "stat": "Average", "accountId": "211125526048" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60,
+                      "yAxis": {
+                          "left": {
+                              "showUnits": false,
+                              "label": "Bytes/Second"
+                          }
+                      }
+                  }
+              },
+              {
+                  "height": 6,
+                  "width": 4,
+                  "y": 7,
+                  "x": 0,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Number of Desired Tasks",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ "ECS/ContainerInsights", "DesiredTaskCount", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "stat": "Average" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60
+                  }
+              },
+              {
+                  "height": 6,
+                  "width": 4,
+                  "y": 7,
+                  "x": 4,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Number of Running Tasks",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ "ECS/ContainerInsights", "RunningTaskCount", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "stat": "Average" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60
+                  }
+              },
+              {
+                  "height": 6,
+                  "width": 4,
+                  "y": 13,
+                  "x": 0,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Number of Pending Tasks",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ "ECS/ContainerInsights", "PendingTaskCount", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "stat": "Average" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60
+                  }
+              },
+              {
+                  "height": 6,
+                  "width": 4,
+                  "y": 13,
+                  "x": 4,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Number of Task Sets",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ "ECS/ContainerInsights", "TaskSetCount", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "stat": "Average" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60
+                  }
+              },
+              {
+                  "height": 6,
+                  "width": 4,
+                  "y": 13,
+                  "x": 8,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "Number of Deployments",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ "ECS/ContainerInsights", "DeploymentCount", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "stat": "Average" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60
+                  }
+              },
+              {
+                  "height": 6,
+                  "width": 6,
+                  "y": 13,
+                  "x": 12,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "EBS Filesystem Size",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ "ECS/ContainerInsights", "EBSFilesystemSize", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "id": "expr1m0", "label": "[avg: ${AVG}] EBS-Filesystem-Size", "stat": "Average", "accountId": "211125526048" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60,
+                      "yAxis": {
+                          "left": {
+                              "showUnits": false,
+                              "label": "Gigabytes"
+                          }
+                      }
+                  }
+              },
+              {
+                  "height": 6,
+                  "width": 6,
+                  "y": 13,
+                  "x": 18,
+                  "type": "metric",
+                  "properties": {
+                      "region": "us-east-1",
+                      "title": "EBS Filesystem Utilization",
+                      "legend": {
+                          "position": "bottom"
+                      },
+                      "timezone": "LOCAL",
+                      "metrics": [
+                          [ { "id": "expr1m0", "expression": "mm1m0 * 100 / mm0m0", "label": "[avg: ${AVG}] EBS-Filesystem-Utilization", "stat": "Average", "accountId": "211125526048" } ],
+                          [ "ECS/ContainerInsights", "EBSFilesystemSize", "ClusterName", "hudcn-nonprod-ecs-cluster", "ServiceName", "hudcn-nonprod-ecs-service", { "id": "mm0m0", "visible": false, "stat": "Sum", "accountId": "211125526048" } ],
+                          [ ".", "EBSFilesystemUtilized", ".", ".", ".", ".", { "id": "mm1m0", "visible": false, "stat": "Sum", "accountId": "211125526048" } ]
+                      ],
+                      "liveData": false,
+                      "period": 60,
+                      "yAxis": {
+                          "left": {
+                              "min": 0,
+                              "showUnits": false,
+                              "label": "Percent"
+                          }
+                      }
+                  }
+              }
+        ]
+      }
+      '
+
+          

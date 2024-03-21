@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  This template will create CloudWatch dashboard for the referenced ECS service
+
+# Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
+#------------------------------------------------------------------------------------*
+# This CloudFormation template example creates a dashboard with metric widgets 
+# that appear side by side.
+
+# More details on Dashboard Body Structure and Syntax here:
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/CloudWatch-Dashboard-Body-Structure.html
+#______
+
+# define dashboard paremeters
+Parameters:
+  DashboardName:
+    Description: dashboard name
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: '^[a-zA-Z][-a-zA-Z0-9]*$'
+  ServiceArn:
+    Type: String
+    Description: The ARN of the service that we want to create a dashboard for
+
+ServiceDashboard:
+  Type: AWS::CloudWatch::Dashboard
+  Properties:
+    DashboardName: !Ref DashboardName
+    # optional : we can prevent the user from giving the name and generate the name
+    # from the service ARN provided as follow:
+    # Fn::Sub:
+    #       - "${ServiceName}-dashboard"
+    #       - ServiceName: !Select [2, !Split ['/', !Select [5, !Split [':', !Ref ServiceArn]]]]
+
+    #______
+    # Widget 1: includes two metrics and a math expression that sums their total
+
+    # Widget 2: is a search expression that displays the CPUUtilization for all 
+    # EC2 instances in the Region.
+
+    # Widget 3: displays three metrics for each of the account's running EC2 instances, 
+    # with the graphs in the widget split by availability zone. Within each graph, 
+    # the metrics are aggregated by instance type.
+
+    # Widget 4: displays four alarms specified by name, no matter their current state.
+    # This resource creates the widgets that will live in the CloudWatch
+    # dashboard, by pulling stats from Container Insights
+  
+    DashboardBody:
+      Fn::ToJsonString:
+        widgets:
+          # A table that shows recent deployment events
+          - type: log
+            x: 0
+            y: 0
+            width: 24
+            height: 4
+            properties:
+              region: !Ref AWS::Region
+              title: Service Deployments
+              query: !Sub "SOURCE '${ServiceEventLog}' | fields @timestamp, detail.eventName, detail.deploymentId | sort @timestamp desc | limit 500"
+              view: table
+
+          # A graph showing the running task count over time
+          - type: metric
+            x: 0
+            y: 13
+            width: 24
+            height: 6
+            properties:
+              metrics:
+              - - "ECS/ContainerInsights"
+                - "RunningTaskCount"
+                - "ServiceName"
+                # Extract service name from service ARN
+                - !Select [2, !Split ['/', !Select [5, !Split [':', !Ref ServiceArn]]]]
+                - "ClusterName"
+                # Extract cluster name from service ARN
+                - !Select [1, !Split ['/', !Select [5, !Split [':', !Ref ServiceArn]]]]
+              - [ ".", "DesiredTaskCount", ".", ".", ".", "." ]
+              view: timeSeries
+              stacked: false
+              region: !Ref AWS::Region
+              stat: Sum
+              period: 60
+              yAxis:
+                left:
+                  min: 0
+              title: "DesiredTaskCount, RunningTaskCount"
+
+          # A graph showing CPU and Memory utilization over time
+          - type: metric
+            x: 0
+            y: 13
+            width: 24
+            height: 6
+            properties:
+              metrics:
+              - - "ECS/ContainerInsights"
+                - "CpuUtilized"
+                - "ServiceName"
+                # Extract service name from service ARN
+                - !Select [2, !Split ['/', !Select [5, !Split [':', !Ref ServiceArn]]]]
+                - "ClusterName"
+                # Extract cluster name from service ARN
+                - !Select [1, !Split ['/', !Select [5, !Split [':', !Ref ServiceArn]]]]
+              - [ ".", "MemoryUtilized", ".", ".", ".", "." ]
+              view: timeSeries
+              stacked: false
+              region: !Ref AWS::Region
+              stat: Sum
+              period: 60
+              yAxis:
+                left:
+                  min: 0
+              title: "CPU Utilization, Memory Utilization"
+
+          

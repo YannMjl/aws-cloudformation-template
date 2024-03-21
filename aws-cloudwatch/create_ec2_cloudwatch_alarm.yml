@@ -3,6 +3,9 @@ Description: Create CloudWatch Alarms for EC2 CPU and RAM Utilization
 
 # Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
 #------------------------------------------------------------------------------------*
+# EC2 Metrics with alarm recommendations are CPU and RAM utilization
+# as well as StatusCheckFailed: Sum
+
 # This CloudFormation template creates cloudwatch an alarm that sends a notification 
 # when the average CPU and/or RAM utilization of an Amazon EC2 instance exceeds 90% 
 # for more than 60 seconds over three evaluation periods.

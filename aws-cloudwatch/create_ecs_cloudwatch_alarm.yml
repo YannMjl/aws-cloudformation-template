@@ -5,6 +5,9 @@ Description: >
 
 # Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
 #------------------------------------------------------------------------------------*
+# For an ECS cluster Metrics with alarm recommendation is: Disk Utilization
+# for entire ECS service, alarm recommendation is: CPUUtilization: Average
+
 # Any Amazon ECS service hosted on Fargate has CloudWatch CPU and memory 
 # utilization metrics automatically, so you don't need to take any manual steps.
 
@@ -29,6 +32,10 @@ Description: >
 # Setup parameters
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudwatch-alarm.html
 
+# More info about ECS Container Insight here:
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-ECS-cluster.html
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-metrics-ECS.html
+
 Parameters:
   ClusterName:
     Type: String
@@ -48,6 +55,17 @@ Parameters:
       - DiskUtilization
       - NetworkIn
       - NetworkOut
+  ContainerInsightMetricName:
+    Type: String
+    Description: The name of the metric to monitor.
+    AllowedValues:
+      - CpuUtilized
+      - EBSFilesystemUtilized
+      - MemoryUtilized
+      - NetworkRxBytes
+      - NetworkTxBytes
+      - RunningTaskCount
+      - ServiceCount
   Statistic:
     Type: String
     Description: The statistic to use for the alarm.
