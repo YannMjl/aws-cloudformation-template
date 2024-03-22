@@ -1,8 +1,11 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Create CloudWatch Alarms for EC2 CPU and RAM Utilization
+Description: >
+  Create CloudWatch Alarms for EC2 CPU, RAM Utilization, and StatusCheckFailed
 
-# Author: Yann Mulonda - yann.mulonda@icf.com - ICF SCS
-#------------------------------------------------------------------------------------*
+#---------------------------------------------------------------------------------------------------------------------*
+# Author: Yann Mulonda - yann.mulonda@icf.com - ICF Secure Cloud Service Team
+#______
+
 # EC2 Metrics with alarm recommendations are CPU and RAM utilization
 # as well as StatusCheckFailed: Sum
 
@@ -12,12 +15,26 @@ Description: Create CloudWatch Alarms for EC2 CPU and RAM Utilization
 
 # An SNS topic needs to be created and attached this alarm. Review the following 
 # cloudformation template file to create SNS topics: create_sns_topic.yml
-#______
+
+# Configuring how CloudWatch alarms treat missing data                 
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html#alarms-and-missing-data
+# For more information, see [Enable or turn off detailed monitoring for your instances]
+# https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch-new
+#---------------------------------------------------------------------------------------------------------------------*
 
 Parameters:
+  AppName:
+    Description: Name of the application hosted on the EC2 instance"
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: '^[a-zA-Z][-a-zA-Z0-9]*'
   EC2InstanceId:
     Description: ID of the EC2 instance to monitor
     Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: '^[a-zA-Z][-a-zA-Z0-9]*$'
   CPUMetricThreshold:
     Description: CPU utilization threshold for the alarm (percentage)
     Type: Number
@@ -32,12 +49,32 @@ Parameters:
     MinValue: 1
     MaxValue: 100
     ConstraintDescription: Threshold value must be between 1 and 100
+  StatusCheckFailedMetricThreshold:
+    Description: Number of StatusCheckFailed threshold
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 3
+    ConstraintDescription: Threshold value must be between 1 and 3
+  SNSNotificationTopic:
+    Description: ARN of the SNS topic to notify when this alarm in ALARM state
+    Type: String
 
 Resources:
   CPUMetricAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmDescription: "Alarm for EC2 CPU Utilization"
+      AlarmName: !Sub '${AppName}-EC2-${EC2InstanceId}-CPUUtilization'
+      AlarmDescription: >
+        This alarm helps to monitor the CPU utilization of an EC2
+        instance. Depending on the application, consistently high utilization
+        levels might be normal. But if performance is degraded, and the
+        application is not constrained by disk I/O, memory, or network
+        resources, then a maxed-out CPU might indicate a resource bottleneck or
+        application performance problems. High CPU utilization might indicate
+        that an upgrade to a more CPU intensive instance is required. If
+        detailed monitoring is enabled, you can change the period to 60 seconds
+        instead of 300 seconds.
       Namespace: "AWS/EC2"
       MetricName: "CPUUtilization"
       Dimensions:
@@ -56,7 +93,7 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmDescription: "Alarm for EC2 RAM Utilization"
-      Namespace: "System/Linux"                         # Adjust the namespace based on your instance's OS
+      Namespace: "AWS/EC2"                              # Adjust the namespace based on your instance's OS
       MetricName: "MemoryUtilization"                   # Metric name may vary depending on OS
       Dimensions:
         - Name: "InstanceId"
@@ -70,11 +107,23 @@ Resources:
         - !Ref SNSNotificationTopic                    # Replace with your SNS topic ARN
       TreatMissingData: notBreaching
 
-Outputs:
-  CPUMetricAlarmName:
-    Description: Name of the CloudWatch Alarm for CPU Utilization
-    Value: !Ref CPUMetricAlarm
-
-  RAMMetricAlarmName:
-    Description: Name of the CloudWatch Alarm for RAM Utilization
-    Value: !Ref RAMMetricAlarm
+  StatusCheckFailedMetricAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${AppName}-EC2-${EC2InstanceId}-StatusCheckFailed'
+      AlarmDescription: >
+        This alarm helps to monitor both system status checks and instance status checks. 
+        If either type of status check fails, then this alarm should be in ALARM state.
+      Namespace: "AWS/EC2"                              # Adjust the namespace based on your instance's OS
+      MetricName: "StatusCheckFailed"                   # Metric name may vary depending on OS
+      Dimensions:
+        - Name: "InstanceId"
+          Value: !Ref EC2InstanceId
+      Statistic: Maximum
+      Period: 300 # 5 minutes
+      EvaluationPeriods: 1
+      Threshold: !Ref RAMMetricThreshold
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref SNSNotificationTopic                   # Replace with your SNS topic ARN
+      TreatMissingData: notBreaching
