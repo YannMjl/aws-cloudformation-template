@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  This Couldformation template creates SNS Subscriptions given paramaters.
+  An appropirate protocal should be chosen for the subscription to the SNS topic.
+
+#---------------------------------------------------------------------------------------------------------------------*
+# Author: Yann Mulonda - yann.mulonda@icf.com - ICF Secure Cloud Service Team
+#______
+# SNS is a Simple Notification Service. It's used by Cloudwatch to send alert. 
+# An SNS topic needs to be created and then an endpoint needs to be subscribed to it.
+
+# recommendation SNS Subscriptions for SCS team are based on SNS Topics.
+#______
+# we'll typically have 3 SNS topics for all AWS account manages by SCS to which corresponding 
+# endpoint needs to subscribe to. After your subscription is created, you must confirm it.
+
+# SNS Topic:                    SNS Subscriptions endpoints:
+# _________                     _________________
+# * pagerduty_alerts            scs-aws-alerts@icfwebservices.pagerduty.com | protocol: EMAIL
+#                               https://events.pagerduty.com/integration/8e7b8733f5124f09c08803a2128101e5/enqueue (HTTPS)
+# * scs_staff_alerts            scs-cloud@icf.com | protocol: EMAIL
+# * projectName_team_alerts     projectname@example.com | protocol: EMAIL
+
+# More info: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sns-subscription.html
+#---------------------------------------------------------------------------------------------------------------------*
+
+# define paremeter
+Parameters:
+  SNSTopicARN:
+    Type: String
+    Description: The ARN of the topic to subscribe to                 # Amazon Resource Name (ARN)
+  SubscriptionEndPoint:
+    Type: String
+    Description: The endpoint that receives notifications.
+  SubscriptionProtocol:
+    Type: String
+    Description: The subscription protocol
+    AllowedValues:
+    - http
+    - https
+    - email
+    - email-json
+    - sms
+    - sqs
+    - application
+    - lambda
+    Default: email
+Mappings: {}
+Conditions: {}
+
+# Create AWS resources
+Resources:
+  SNSSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !Ref SubscriptionEndPoint
+      Protocol: !Ref SubscriptionProtocol
+      TopicArn: !Ref SNSTopicARN

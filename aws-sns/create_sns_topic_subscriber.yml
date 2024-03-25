@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
   This Couldformation template creates SNS Topic given paramaters.
+  An appropirate protocal should be chosen for the subscription to the SNS topic.
 
 #---------------------------------------------------------------------------------------------------------------------*
 # Author: Yann Mulonda - yann.mulonda@icf.com - ICF Secure Cloud Service Team
@@ -10,13 +11,6 @@ Description: >
 
 # The SNS topic created are what will be refered to on a CloudWatch alarms:
 # refer to: aws-cloudwatch-alarm folder and review the cloudformation template
-
-# recommendation SNS topic naming standards for Secure Cloud Service team
-#______
-# we'll typically have 3 SNS topics for all AWS account manages by SCS:
-# * pagerduty_alerts
-# * scs_staff_alerts
-# * projectName_team_alerts
 #---------------------------------------------------------------------------------------------------------------------*
 
 # define paremeter
@@ -35,6 +29,22 @@ Parameters:
     Type: String
     MinLength: 1
     MaxLength: 100
+  SubscriptionEndPoint:
+    Type: String
+    Description: The endpoint that receives notifications.
+  SubscriptionProtocol:
+    Type: String
+    Description: The subscription protocol
+    AllowedValues:
+    - http
+    - https
+    - email
+    - email-json
+    - sms
+    - sqs
+    - application
+    - lambda
+    Default: email
 Mappings: {}
 Conditions: {}
 
@@ -44,6 +54,13 @@ Resources:
   # Review snsReadMe for more details
   SNSTopic:
     Type: AWS::SNS::Topic
+    # Properties: {}
     Properties:
       DisplayName: !Ref SNSTopicDisplayName
       TopicName: !Ref SNSTopicName
+  SNSSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !Ref SubscriptionEndPoint
+      Protocol: !Ref SubscriptionProtocol
+      TopicArn: !Ref SNSTopic
