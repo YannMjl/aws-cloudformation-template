@@ -4,10 +4,12 @@
 
 ## Description
 
-Each of these folder contents scripts and derectives on how to install the plugin on Nagios:
+Each of these folder contents CloudFormation templates and derectives on how to create monitoring resource on AWS
+for services such as EC2, ECS, EKS, Elastic Beanstalk:
 
-* **[AWS SNS](aws-sns)**
-* **[AAWS CloudWatch Alarm](aws-cloudwatch)**
+* **[AWS SNS Topics & Subscriptions](aws-sns)**
+* **[AAWS CloudWatch Alarms](aws-cloudwatch-alarms)**
+* **[AAWS CloudWatch Dashboards](aws-cloudwatch-dashboards)**
 
 ## Meta
 
@@ -15,12 +17,12 @@ Each of these folder contents scripts and derectives on how to install the plugi
 
 ## Contributing
 
-This project has one branch: **master**.
+This project has one branch: **main**.
 
 **Changes can be made on a feature branch then merged to master if needed**
 ```bash
-    git clone https://github.com/YannMjl/aws-cloudformation-template.git
-    cd aws-cloudformation-template
-    git checkout -b yourFeatureBranchName
+git clone https://github.com/YannMjl/aws-cloudformation-template.git
+cd aws-cloudformation-template
+git checkout -b yourFeatureBranchName
 ```
-After making the necessayr code changes, submited a pull request to merge to main branch.
+After making the necessary code changes, submited a pull request to merge to main branch.
