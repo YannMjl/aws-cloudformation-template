@@ -34,3 +34,27 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+
+  # CloudFormation Linter enables arbitrary actions for interacting with CloudFormation Linter 
+  # to validate CloudFormation yaml/json templates against the CloudFormation spec and additional checks. 
+  # Includes checking valid values for resource properties and best practices.
+  cloudformation-templates-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Cloud Formation Linter with Latest Version
+        uses: scottbrenner/cfn-lint-action@v2
+
+      - name: Print the Cloud Formation Linter Version & run Linter.
+        run: |
+          cfn-lint --version
+          cfn-lint -t ./aws-sns/create_sns_topic.yml
+
+      - name: Print the Cloud Formation Linter Version & run Linter.
+        run: |
+          cfn-lint --version
+          cfn-lint -t ./aws-sns/create_sns_subscriber.yml
+          cfn-lint -t ./aws-sns/create_sns_topic_subscriber.yml

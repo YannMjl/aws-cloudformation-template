@@ -9,7 +9,7 @@ The following sections list the metrics that we recommend that you set best prac
 
 Some metrics might appear twice in the list. This happens when different alarms are recommended for different combinations of dimensions of that metric.
 
-### EC2
+## EC2
 > Commonly monitored metrics are CPU Utilization and Status Check Failed. 
 Please read [AWS’ documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/viewing_metrics_with_cloudwatch.html) for more information on EC2 metrics.
 
@@ -24,11 +24,11 @@ When a status check fails, the value of this metric is 1. The threshold is set s
 
 ** For more information related to EC2, see [Enable or turn off detailed monitoring for your instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch-new.html).
 
-### ECS
+## ECS
 > Commonly monitored ECS cluster metrics Disk Utilization. For entire ECS service, alarm recommendation is: CPUUtilization: Average
 
-** ECS/Container Insights Alarm recommendations: **
------------------------------------------------
+#### ECS/Container Insights Alarm recommendations:
+
 * RunningTaskCount: Average -- The number of tasks currently in the RUNNING state.
 
 This alarm is used to detect whether the number of running tasks are too low. A consistent low running task count can indicate ECS service deployment or performance issues.
@@ -42,15 +42,15 @@ This alarm is used to detect high ephemeral storage usage for the Fargate cluste
 
 Set the threshold to about 90% of the ephemeral storage size. You can adjust this value based on your acceptable ephemeral storage utilization of the Fargate cluster. For some systems, a consistently high ephemeral storage utilized might be normal, while for others, it might lead to failure of the container.
 
-### EKS
+## EKS
 > Commonly monitored metrics are cluster_failed_node_count and node_cpu_utilization
 Please read [AWS’ documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-metrics-EKS.html) for more information on EKS metrics.
 
-### Elastic BeanStalk
+## Elastic BeanStalk
 
 * TDB
 
-### SNS
+## SNS
 > Commonly monitored metrics are NumberOfNotificationsDelivered and NumberOfNotificationsFailed
 
 * NumberOfNotificationsDelivered: Sum -- The number of messages successfully delivered from your Amazon SNS topics to subscribing endpoints
