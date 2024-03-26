@@ -15,46 +15,68 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
 
   # CloudFormation Linter enables arbitrary actions for interacting with CloudFormation Linter 
   # to validate CloudFormation yaml/json templates against the CloudFormation spec and additional checks. 
   # Includes checking valid values for resource properties and best practices.
-  cloudformation-templates-validation:
+  validate-templates:
     runs-on: ubuntu-latest
-
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Cloud Formation Linter with Latest Version
         uses: scottbrenner/cfn-lint-action@v2
 
-      - name: Print the Cloud Formation Linter Version & run Linter.
+      - name: Validate AWS SNS CouldFormation templates
         run: |
           cfn-lint --version
           cfn-lint -t ./aws-sns/create_sns_topic.yml
-
-      - name: Print the Cloud Formation Linter Version & run Linter.
-        run: |
-          cfn-lint --version
           cfn-lint -t ./aws-sns/create_sns_subscriber.yml
           cfn-lint -t ./aws-sns/create_sns_topic_subscriber.yml
+
+      - name: Validate CouldWatch Alarm CouldFormation templates.
+        run: |
+          cfn-lint --version
+          cfn-lint -t ./aws-cloudwatch-alarms/create_ecs_cloudwatch_alarm.yml
+          cfn-lint -t ./aws-cloudwatch-alarms/create_ec2_cloudwatch_alarm.yml
+
+      - name: Validate CouldWatch Dashboards CouldFormation templates.
+        run: |
+          cfn-lint --version
+          cfn-lint -t ./aws-cloudwatch-dashboards/create_dashboard_v1.yml
+          cfn-lint -t ./aws-cloudwatch-dashboards/create_service_dashboard.yml
+          cfn-lint -t ./aws-cloudwatch-dashboards/create_dashboard_cloudwatch.
+          
+  # A test "build" action
+  build:
+    runs-on: ubuntu-latest
+  
+    # only if the app build and test successfully
+    needs: [validate-templates]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: show the job trigger
+        run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+
+      - name: show the OS of the Github Actions runner
+        run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+
+      - name: show branch and repo name
+        run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: show step after repo checkout
+        run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+
+      - name: display a message
+        run: echo "🖥️ The workflow is now ready to test your code on the runner."
+
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."
